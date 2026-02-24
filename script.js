@@ -91,45 +91,23 @@ let jobs = [
 
 const jobsList = document.getElementById("jobsList");
 
-function createCard(job) {
-  const card = document.createElement("div");
-  card.className = "job-card";
-
-  card.innerHTML = `
-    <div class="job-top">
-      <div>
-        <p class="job-company">${job.companyName}</p>
-        <p class="job-position">${job.position}</p>
-      </div>
-    </div>
-
-    <div class="job-meta">
-      <span>${job.location}</span>
-      <span>•</span>
-      <span>${job.type}</span>
-      <span>•</span>
-      <span>${job.salary}</span>
-    </div>
-
-    <p class="job-desc">${job.description}</p>
-  `;
-
-  return card;
-}
-
-function renderList() {
-  jobsList.innerHTML = "";
-  jobs.forEach((job) => jobsList.appendChild(createCard(job)));
-  tabCount.textContent = String(jobs.length);
-  updateDashboard();
-}
-
-renderList();
+const emptyState = document.getElementById("emptyState");
+const emptyTitle = document.getElementById("emptyTitle");
+const emptySubtitle = document.getElementById("emptySubtitle");
 
 const totalCount = document.getElementById("totalCount");
 const interviewCount = document.getElementById("interviewCount");
 const rejectedCount = document.getElementById("rejectedCount");
+
 const tabCount = document.getElementById("tabCount");
+const tabs = document.querySelectorAll(".tab");
+
+let activeTab = "All";
+
+function getFilteredJobs(tab) {
+  if (tab === "All") return jobs;
+  return jobs.filter((j) => j.status === tab);
+}
 
 function countStatus(status) {
   return jobs.filter((j) => j.status === status).length;
@@ -140,3 +118,119 @@ function updateDashboard() {
   interviewCount.textContent = String(countStatus("Interview"));
   rejectedCount.textContent = String(countStatus("Rejected"));
 }
+
+function updateEmptyText(tab) {
+  emptyTitle.textContent = "No jobs available";
+
+  if (tab === "Interview") {
+    emptySubtitle.textContent = "Mark a job as Interview and it will appear here";
+  } else if (tab === "Rejected") {
+    emptySubtitle.textContent = "Reject a job and it will be listed here";
+  } else {
+    emptySubtitle.textContent = "Check back soon for new job opportunities";
+  }
+}
+
+function setStatus(id, status) {
+  jobs = jobs.map((j) => (j.id === id ? { ...j, status } : j));
+
+  setActiveTab(status);
+}
+
+function deleteJob(id) {
+  jobs = jobs.filter((j) => j.id !== id);
+
+  render();
+}
+
+function badgeHTML(job) {
+  if (!job.status) return `<div class="badge">NOT APPLIED</div>`;
+  if (job.status === "Interview") return `<div class="badge interview">INTERVIEW</div>`;
+  return `<div class="badge rejected">REJECTED</div>`;
+}
+
+function createCard(job) {
+  const card = document.createElement("div");
+  card.className = "job-card";
+
+  card.innerHTML = `
+    <div class="job-top">
+      <div>
+        <p class="job-company">${job.companyName}</p>
+        <p class="job-position">${job.position}</p>
+      </div>
+
+      <button class="trash" title="Delete" data-action="delete">🗑️</button>
+    </div>
+
+    <div class="job-meta">
+      <span>${job.location}</span>
+      <span>•</span>
+      <span>${job.type}</span>
+      <span>•</span>
+      <span>${job.salary}</span>
+    </div>
+
+    ${badgeHTML(job)}
+
+    <p class="job-desc">${job.description}</p>
+
+    <div class="actions">
+      <button class="btn interview ${job.status === "Interview" ? "active" : ""}" data-action="interview">
+        INTERVIEW
+      </button>
+      <button class="btn rejected ${job.status === "Rejected" ? "active" : ""}" data-action="rejected">
+        REJECTED
+      </button>
+    </div>
+  `;
+
+  card.querySelector('[data-action="interview"]').addEventListener("click", () => {
+    setStatus(job.id, "Interview");
+  });
+
+  card.querySelector('[data-action="rejected"]').addEventListener("click", () => {
+    setStatus(job.id, "Rejected");
+  });
+
+  card.querySelector('[data-action="delete"]').addEventListener("click", () => {
+    deleteJob(job.id);
+  });
+
+  return card;
+}
+
+
+function setActiveTab(tab) {
+  activeTab = tab;
+
+  tabs.forEach((btn) => {
+    const isActive = btn.dataset.tab === tab;
+    btn.classList.toggle("active", isActive);
+    btn.setAttribute("aria-selected", isActive ? "true" : "false");
+  });
+
+  render();
+}
+
+tabs.forEach((btn) => btn.addEventListener("click", () => setActiveTab(btn.dataset.tab)));
+
+function render() {
+  updateDashboard();
+
+  const visible = getFilteredJobs(activeTab);
+
+  jobsList.innerHTML = "";
+
+  if (visible.length === 0) {
+    updateEmptyText(activeTab);
+    emptyState.classList.remove("hidden");
+  } else {
+    emptyState.classList.add("hidden");
+    visible.forEach((job) => jobsList.appendChild(createCard(job)));
+  }
+
+  tabCount.textContent = String(visible.length);
+}
+
+render();
