@@ -120,6 +120,23 @@ function createCard(job) {
 function renderList() {
   jobsList.innerHTML = "";
   jobs.forEach((job) => jobsList.appendChild(createCard(job)));
+  tabCount.textContent = String(jobs.length);
+  updateDashboard();
 }
 
 renderList();
+
+const totalCount = document.getElementById("totalCount");
+const interviewCount = document.getElementById("interviewCount");
+const rejectedCount = document.getElementById("rejectedCount");
+const tabCount = document.getElementById("tabCount");
+
+function countStatus(status) {
+  return jobs.filter((j) => j.status === status).length;
+}
+
+function updateDashboard() {
+  totalCount.textContent = String(jobs.length);
+  interviewCount.textContent = String(countStatus("Interview"));
+  rejectedCount.textContent = String(countStatus("Rejected"));
+}
