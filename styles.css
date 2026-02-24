@@ -36,6 +36,7 @@ body {
   letter-spacing: -0.2px;
 }
 
+/* Stats */
 .stats {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -65,6 +66,7 @@ body {
 .green { color: var(--green); }
 .red { color: var(--red); }
 
+/* Jobs */
 .jobs-head {
   margin-top: 18px;
   display: flex;
@@ -84,6 +86,7 @@ body {
   color: var(--muted);
 }
 
+/* Tabs */
 .tabs {
   margin-top: 10px;
   display: inline-flex;
@@ -110,6 +113,7 @@ body {
   color: white;
 }
 
+/* List */
 .jobs-list {
   margin-top: 12px;
   display: flex;
@@ -117,6 +121,7 @@ body {
   gap: 14px;
 }
 
+/* Job Card */
 .job-card {
   background: var(--card);
   border: 1px solid var(--line);
@@ -232,6 +237,7 @@ body {
   background: rgba(239, 68, 68, 0.12);
 }
 
+/* Empty */
 .empty { margin-top: 12px; }
 
 .empty-box {
@@ -266,6 +272,7 @@ body {
 
 .hidden { display: none; }
 
+/* Responsive */
 @media (max-width: 720px) {
   .stats { grid-template-columns: 1fr; }
   .title { font-size: 22px; }
